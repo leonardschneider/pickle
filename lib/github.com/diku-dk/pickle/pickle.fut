@@ -149,8 +149,9 @@ module pickle : pickle = {
                        in i64.pickler (length s / length arr) ++ s
     , unpickler = \n (s: bytes [n]) ->
                     let (m, s) = unpickle' i64 s
-                    let (arr_s, s) = split (k*m) s
-                    let arr = map (\x -> x |> pu.unpickler m |> (.0)) (unflatten k m arr_s)
+                    let (arr_s, s) = (take (k*m) s,
+                                      drop (k*m) s)
+                    let arr = map (\x -> x |> pu.unpickler m |> (.0)) (unflatten arr_s)
                     in (arr, s)
     }
 }

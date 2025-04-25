@@ -146,3 +146,21 @@ entry many (_:i32) : bool =
      && test P.i16 (\v -> i64.i16 v == 0x7FFF) 0x7FFF
      && test P.u16 (\v -> i64.u16 v == 0x8000) 0x8000
      && test P.i8 (100 ==) 100
+
+-- ==
+-- entry: test_csti32
+-- input { 42 } output { true }
+
+entry test_csti32 (x: i32): bool =
+  let pu = P.cst x
+  in test pu (x ==) x
+
+-- ==
+-- entry: test_cst_unit
+-- input { } output { true }
+
+entry test_cst_unit: bool =
+  let pu = P.cst ()
+  let s = P.pickle pu ()
+  let v = P.unpickle pu []
+  in null s && v == ()

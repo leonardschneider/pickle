@@ -42,6 +42,8 @@ module type pickle = {
   -- can be converted into nested pairs and back again, and then use
   -- the `pair`@term combinator.
   val iso 'a 'b : (a->b) -> (b->a) -> pu a -> pu b
+
+  val cst 'a : a -> pu a
 }
 
 module pickle : pickle = {
@@ -153,5 +155,10 @@ module pickle : pickle = {
                                       drop (k*m) s)
                     let arr = map (\x -> x |> pu.unpickler m |> (.0)) (unflatten arr_s)
                     in (arr, s)
+    }
+
+  let cst 'a (x: a): pu a =
+    { pickler = \_ -> []
+    , unpickler = \n (s: bytes [n]) -> (x, s)
     }
 }

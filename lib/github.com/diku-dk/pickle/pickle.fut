@@ -34,7 +34,12 @@ module type pickle = {
 
   val bool : pu bool [1]
   val pair 'a 'b [s1] [s2]: pu a [s1] -> pu b [s2] -> pu (a,b) [s1+s2]
+
+  -- | Row major array pickler.
   val array 'a [s]: (k: i64) -> pu a [s] -> pu ([k]a) [k*s]
+
+  -- | Column major array pickler.
+  val array' 'a [s]: (k: i64) -> pu a [s] -> pu ([k]a) [s*k]
 
   -- | Given an isomorphism between types `a` and `b`, as well as a
   -- pickler for `a`, produce a pickler for `b`.  This is particularly
@@ -138,8 +143,20 @@ module pickle : pickle = {
     , witness = replicate (s1+s2) ()
     }
 
+  --| Col major array pickler
+  let array' 'a [s] k (pu: pu a [s]): pu ([k]a) [s*k] =
+    { pickler = \(arr: [k]a) -> arr |> map pu.pickler |> transpose |> flatten
+    , unpickler = \bs ->
+                    take (s*k) bs
+                      |> unflatten
+                      |> transpose
+                      |> map pu.unpickler
+    , witness = replicate (s*k) ()
+    }
+
+  --| Row major array pickler
   let array 'a [s] k (pu: pu a [s]): pu ([k]a) [k*s] =
-    { pickler = \(arr: [k]a) -> flatten (map pu.pickler arr)
+    { pickler = \(arr: [k]a) -> arr |> map pu.pickler |> flatten
     , unpickler = \bs ->
                     take (k*s) bs
                       |> unflatten

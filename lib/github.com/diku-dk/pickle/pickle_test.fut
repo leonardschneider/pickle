@@ -161,13 +161,29 @@ entry many (_:i32) : bool =
   let v = [[(3,(1,2)),(6,(3,7))],
            [(4,(1,1)),(6,(4,2))]]
   let v2 = {a=23,b=12}
-  in --test pu (v ==) v --&&
-     test pu2 (v2 ==) v2
+  in test pu (v ==) v
+     && test pu2 (v2 ==) v2
      && test P.i64 (0xFFFFFFFFFFFFFFF ==) 0xFFFFFFFFFFFFFFF
      && test P.i32 (\v -> i64.i32 v == 0x7FFFFFFF) 0x7FFFFFFF
      && test P.i16 (\v -> i64.i16 v == 0x7FFF) 0x7FFF
      && test P.u16 (\v -> i64.u16 v == 0x8000) 0x8000
      && test P.i8 (100 ==) 100
+
+-- ==
+-- entry: test_row_major
+-- input { [[1u8, 2u8], [3u8, 4u8]] } output { [1u8, 2u8, 3u8, 4u8] }
+
+entry test_row_major (v: [2][2]u8) =
+  let pu1 = P.array 2 (P.array 2 P.u8)
+  in P.pickle pu1 v
+
+-- ==
+-- entry: test_col_major
+-- input { [[1u8, 2u8], [3u8, 4u8]] } output { [1u8, 3u8, 2u8, 4u8] }
+
+entry test_col_major (v: [2][2]u8) =
+  let pu1 = P.array' 2 (P.array' 2 P.u8)
+  in P.pickle pu1 v
 
 -- ==
 -- entry: test_csti32

@@ -51,6 +51,7 @@ module type pickle = {
   val cst 'a: a -> pu a [0]
 }
 
+-- | Pickler with little endian byte order.
 module pickle : pickle = {
   type bytes [n] = [n]u8
 
@@ -86,43 +87,44 @@ module pickle : pickle = {
     , witness = replicate 1 ()
     }
 
+  -- | little endian
   let i16 : pu i16 [2] =
-    { pickler = \x -> [u8.i16 (x>>8),
-                       u8.i16 (x>>0)]
-    , unpickler = \bs -> i16.u8 bs[0] << 8 |
-                         i16.u8 bs[1] << 0
+    { pickler = \x -> [u8.i16 (x>>0),
+                       u8.i16 (x>>8)]
+    , unpickler = \bs -> i16.u8 bs[0] << 0 |
+                         i16.u8 bs[1] << 8
     , witness = replicate 2 ()
     }
 
   let i32 : pu i32 [4] =
-    { pickler = \x -> [u8.i32 (x>>24),
-                       u8.i32 (x>>16),
+    { pickler = \x -> [u8.i32 (x>>0),
                        u8.i32 (x>>8),
-                       u8.i32 (x>>0)]
-    , unpickler = \bs -> i32.u8 bs[0] << 24 |
-                         i32.u8 bs[1] << 16 |
-                         i32.u8 bs[2] << 8 |
-                         i32.u8 bs[3] << 0
+                       u8.i32 (x>>16),
+                       u8.i32 (x>>24)]
+    , unpickler = \bs -> i32.u8 bs[0] << 0 |
+                         i32.u8 bs[1] << 8 |
+                         i32.u8 bs[2] << 16 |
+                         i32.u8 bs[3] << 24
     , witness = replicate 4 ()
     }
 
   let i64 : pu i64 [8] =
-    { pickler = \x -> [u8.i64 (x>>56),
-                       u8.i64 (x>>48),
-                       u8.i64 (x>>40),
-                       u8.i64 (x>>32),
-                       u8.i64 (x>>24),
-                       u8.i64 (x>>16),
+    { pickler = \x -> [u8.i64 (x>>0),
                        u8.i64 (x>>8),
-                       u8.i64 (x>>0)]
-    , unpickler = \bs -> i64.u8 bs[0] << 56 |
-                         i64.u8 bs[1] << 48 |
-                         i64.u8 bs[2] << 40 |
-                         i64.u8 bs[3] << 32 |
-                         i64.u8 bs[4] << 24 |
-                         i64.u8 bs[5] << 16 |
-                         i64.u8 bs[6] << 8 |
-                         i64.u8 bs[7] << 0
+                       u8.i64 (x>>16),
+                       u8.i64 (x>>24),
+                       u8.i64 (x>>32),
+                       u8.i64 (x>>40),
+                       u8.i64 (x>>48),
+                       u8.i64 (x>>56)]
+    , unpickler = \bs -> i64.u8 bs[0] << 0 |
+                         i64.u8 bs[1] << 8 |
+                         i64.u8 bs[2] << 16 |
+                         i64.u8 bs[3] << 24 |
+                         i64.u8 bs[4] << 32 |
+                         i64.u8 bs[5] << 40 |
+                         i64.u8 bs[6] << 48 |
+                         i64.u8 bs[7] << 56
     , witness = replicate 8 ()
     }
 

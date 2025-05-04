@@ -2,3 +2,4 @@ docs
 **/*.c
 **/*.h
 **/pickle_test
+**/.DS_Store
